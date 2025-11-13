@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upholstery Fabric & Labor Calculator</title>
-    <!-- Line 7: This is the comment marking the start of the icon fix. -->
-    <!-- UPDATED: Icon link changed from external SVG to an Emoji Data URI to bypass caching issues. -->
-    <!-- This should force the browser to use a ✂️ icon. -->
-    <!-- Line 9: This is the main favicon link. -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>">
-    <!-- Line 10: This is the iOS/Apple touch icon link. -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>">
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PWA & ICON CONFIGURATION START -->
+    <!-- 1. Link to the Web Manifest file -->
+    <link rel="manifest" href="app.webmanifest">
+    <!-- 2. Basic Favicon (using an emoji as a fallback, which often works) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✂️</text></svg>">
+    <!-- PWA & ICON CONFIGURATION END -->
+    
     <style>
         /* Custom styles for the pieces */
         .piece {
@@ -54,9 +55,10 @@
             border-radius: 8px;
             overflow: hidden;
             transition: height 0.3s ease-out; /* Smooth resizing */
+            /* Visually represent 1 yard (36 inches) grid */
             background-image: linear-gradient(to bottom, #d1d5db 1px, transparent 1px),
                               linear-gradient(to right, #d1d5db 1px, transparent 1px);
-            background-size: 360px 360px, 360px 360px; /* 1 yard (36 inches) grid */
+            background-size: 360px 360px, 360px 360px;
             background-position: 0 0, 0 0;
         }
 
@@ -226,22 +228,17 @@
         const yardageNeededDisplay = document.getElementById('yardage-needed');
         const widthLabel = document.getElementById('width-label');
 
-        // --- LABOR PRICING STRUCTURE (UPDATED to be more competitive) ---
+        // --- LABOR PRICING STRUCTURE ---
         const LABOR_RATES = {
-            // Tier 1: Simple/Entry-Level
-            '1-1': { name: 'Minor (Dining Seat Only)', cost: 60.00 }, // Was $75
-            '1-2': { name: 'Simple (Seat + Back Rest)', cost: 150.00 }, // Was $175
-            '1-3': { name: 'Basic (Bench/Ottoman)', cost: 250.00 }, // Was $300
-            
-            // Tier 2: Intermediate/Standard
-            '2-1': { name: 'Standard (Armchair/Club)', cost: 550.00 }, // Was $750
-            '2-2': { name: 'Intermediate (Loveseat)', cost: 900.00 }, // Was $1,200
-            '2-3': { name: 'Moderate (Standard Sofa)', cost: 1300.00 }, // Was $1,600
-            
-            // Tier 3: Complex/Expert
-            '3-1': { name: 'Complex (Wingback/Bed)', cost: 1500.00 }, // Was $1,800
-            '3-2': { name: 'Advanced (Chaise/Sectional)', cost: 2100.00 }, // Was $2,400
-            '3-3': { name: 'Expert (Deep Tufting/Antique)', cost: 3000.00 } // Was $3,500
+            '1-1': { name: 'Minor (Dining Seat Only)', cost: 60.00 },
+            '1-2': { name: 'Simple (Seat + Back Rest)', cost: 150.00 },
+            '1-3': { name: 'Basic (Bench/Ottoman)', cost: 250.00 },
+            '2-1': { name: 'Standard (Armchair/Club)', cost: 550.00 },
+            '2-2': { name: 'Intermediate (Loveseat)', cost: 900.00 },
+            '2-3': { name: 'Moderate (Standard Sofa)', cost: 1300.00 },
+            '3-1': { name: 'Complex (Wingback/Bed)', cost: 1500.00 },
+            '3-2': { name: 'Advanced (Chaise/Sectional)', cost: 2100.00 },
+            '3-3': { name: 'Expert (Deep Tufting/Antique)', cost: 3000.00 }
         };
 
         // --- Utility Functions ---
@@ -262,7 +259,7 @@
         function checkCollisions() {
             pieces.forEach(p1 => {
                 let p1IsColliding = false;
-                
+
                 // Get p1's current bounds
                 const x1 = p1.element.offsetLeft;
                 const y1 = p1.element.offsetTop;
@@ -296,7 +293,7 @@
                 }
             });
         }
-        
+
         /**
          * Checks for nearby edges (canvas or other pieces) and applies snap logic.
          * @param {object} piece - The piece object being dragged.
@@ -308,10 +305,10 @@
             const pieceWidth = piece.element.offsetWidth;
             const pieceHeight = piece.element.offsetHeight;
             const fabricWidth = canvas.offsetWidth;
-            
+
             let snappedX = newX;
             let snappedY = newY;
-            
+
             // 1. Snapping to Canvas Edges (X-axis)
             if (Math.abs(newX) <= SNAP_THRESHOLD) {
                 snappedX = 0; // Snap to left edge
@@ -393,11 +390,11 @@
 
             element.style.width = `${toPx(currentWidth)}px`;
             element.style.height = `${toPx(currentLength)}px`;
-            
+
             // Constrain position (in case dimension change pushed it out of bounds)
             const fabricWidthInches = parseInt(document.getElementById('fabric-width').value);
             const fabricWidthPx = toPx(fabricWidthInches);
-            
+
             let newX = element.offsetLeft;
             let newY = element.offsetTop;
 
@@ -413,7 +410,7 @@
             element.style.top = `${newY}px`;
             piece.x = newX;
             piece.y = newY;
-            
+
             recalculateYardage();
             checkCollisions(); // Check collisions after resizing
         }
@@ -432,7 +429,8 @@
             widthLabel.textContent = `${fabricWidthInches} inches wide`;
 
             // Adjust grid background size for the new width
-            canvas.style.backgroundSize = `${YARD_IN_PIXELS}px ${YARD_IN_PIXELS}px, ${fabricWidthPx}px ${fabricWidthPx}px`;
+            // Grid size is 1 Yard (360px) tall, but fabric width wide
+            canvas.style.backgroundSize = `${YARD_IN_PIXELS}px ${YARD_IN_PIXELS}px, ${YARD_IN_PIXELS}px ${YARD_IN_PIXELS}px`;
 
             // Check if pieces are outside the new bounds and adjust positions
             pieces.forEach(p => {
@@ -489,7 +487,6 @@
             const width = parseFloat(document.getElementById('piece-width').value);
 
             if (!name || isNaN(length) || length <= 0 || isNaN(width) || width <= 0) {
-                // Use console error instead of alert
                 console.error("Invalid piece input: Name is required, and dimensions must be positive numbers.");
                 return;
             }
@@ -537,25 +534,25 @@
                 checkCollisions(); // Check collisions after removal
             }
         }
-        
+
         /**
          * Updates the dimensions of a piece in the data model and triggers a visual refresh.
          */
         function updatePieceDimensions(id, type, value) {
             const piece = pieces.find(p => p.id === id);
             const numValue = parseFloat(value);
-            
+
             if (!piece || isNaN(numValue) || numValue <= 0) {
                 // If invalid input, reset the field to the last known good value
                 const inputElement = document.getElementById(`${type}-${id}`);
                 if (inputElement) {
-                    inputElement.value = piece[type]; 
+                    inputElement.value = piece[type];
                 }
                 return;
             }
 
             piece[type] = numValue;
-            
+
             // Reapply dimensions to update visual size and check boundaries
             applyDimensionsToElement(piece);
         }
@@ -584,16 +581,16 @@
                 // Use flex-col and md:flex-row for mobile responsiveness
                 listItem.className = 'flex flex-col md:flex-row justify-between items-start md:items-center text-sm p-2 bg-gray-100 rounded-lg';
                 const rotationStatus = p.isRotated ? ' (Rotated)' : '';
-                
+
                 // Editable dimensions section
                 const dimensionsHtml = `
                     <div class="flex items-center space-x-2 my-1 md:my-0 text-gray-600">
                         <!-- Editable Length Input -->
-                        <input type="number" id="length-${p.id}" value="${p.length}" 
+                        <input type="number" id="length-${p.id}" value="${p.length}"
                                 onchange="updatePieceDimensions(${p.id}, 'length', this.value)"
                                 class="w-14 text-center border rounded-md p-0.5 text-xs focus:ring-cyan-500" min="1">
                         <span class="text-xs">L x</span>
-                        
+
                         <!-- Editable Width Input -->
                         <input type="number" id="width-${p.id}" value="${p.width}"
                                 onchange="updatePieceDimensions(${p.id}, 'width', this.value)"
@@ -614,10 +611,10 @@
         }
 
         function recalculateYardage() {
+            // This function handles resizing the canvas and calculating the required yardage.
             const fabricWidthInches = parseInt(document.getElementById('fabric-width').value);
-            const fabricWidthPx = toPx(fabricWidthInches);
 
-            let maxReach = 0; // Max Y-position + height of any piece
+            let maxReach = 0; // Max Y-position + height of any piece (in pixels)
 
             pieces.forEach(p => {
                 const element = p.element;
@@ -629,19 +626,20 @@
                 }
             });
 
-            // Minimum height is the fabric width to ensure a square aspect ratio at worst
+            // Minimum height is the fabric width to ensure a square aspect ratio at worst (visual consistency)
             const minHeight = Math.max(toPx(fabricWidthInches), maxReach);
 
-            // Set canvas height (rounded up to the next full yard line for easy viewing)
+            // Set canvas height: always round up to the next full yard line (360px) for visual padding
             const requiredLengthPx = Math.ceil(minHeight / YARD_IN_PIXELS) * YARD_IN_PIXELS;
             canvas.style.height = `${requiredLengthPx}px`;
 
-            // Calculate yardage
-            const actualYardageNeeded = toYards(maxReach);
+            // Calculate yardage (in inches, then convert to yards)
+            const actualLengthInches = maxReach / SCALE;
+            const actualYardageNeeded = actualLengthInches / 36;
 
             // The user must purchase in full tenths of a yard, so round up
             const purchasableYardage = Math.ceil(actualYardageNeeded * 10) / 10;
-            
+
             // If actual length is 0, purchasable yardage is 0.
             const finalYardage = actualYardageNeeded > 0 ? purchasableYardage : 0.00;
 
@@ -696,12 +694,12 @@
 
                 let newX = clientX - canvasRect.left - offset.x;
                 let newY = clientY - canvasRect.top - offset.y;
-                
+
                 // --- Apply Snapping Logic ---
                 const snapped = checkAndApplySnap(activePiece, newX, newY);
                 newX = snapped.x;
                 newY = snapped.y;
-                
+
                 const pieceWidth = activePiece.element.offsetWidth;
                 const pieceHeight = activePiece.element.offsetHeight;
                 const fabricWidth = canvas.offsetWidth;
@@ -744,7 +742,7 @@
             const priceInput = document.getElementById('price-per-yard');
             const pricePerYard = parseFloat(priceInput.value);
             const laborTierKey = document.getElementById('labor-tier').value;
-            
+
             // Get yardage from display if not provided (for direct user input updates)
             if (yardage === null) {
                 yardage = parseFloat(yardageNeededDisplay.textContent);
@@ -752,7 +750,7 @@
 
             // --- 1. Fabric Cost Calculation ---
             const subtotalFabric = isNaN(pricePerYard) || pricePerYard <= 0 || yardage <= 0 ? 0 : yardage * pricePerYard;
-            
+
             // --- 2. Labor Cost Calculation ---
             const laborRate = LABOR_RATES[laborTierKey] || { name: 'N/A', cost: 0.00 };
             const laborCost = laborRate.cost;
@@ -763,51 +761,47 @@
             const totalCost = taxableAmount + taxAmount;
 
             // --- 4. Update UI ---
-            
+
             // Fabric Cost
             document.getElementById('cost-yardage').textContent = yardage.toFixed(2);
             document.getElementById('subtotal-cost').textContent = `$${subtotalFabric.toFixed(2)}`;
-            
+
             // Labor Cost
             document.getElementById('labor-tier-display').textContent = laborRate.name.split('(')[0].trim();
             document.getElementById('labor-cost-display').textContent = `$${laborCost.toFixed(2)}`;
-            
+
             // Final Quote
             document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
         }
 
-        // --- Initialization ---
+        // --- Reset and Initialization ---
 
         function resetLayout() {
             pieces = [];
             canvas.innerHTML = '';
+            // Reset piece input form values
             document.getElementById('piece-name').value = 'Panel 1';
             document.getElementById('piece-length').value = '30';
             document.getElementById('piece-width').value = '20';
-            document.getElementById('price-per-yard').value = '25.00';
-            document.getElementById('labor-tier').value = '1-2'; // Reset to a default selection
+
             updatePieceList();
-            updateFabricWidth(); // Resets canvas height and recalculates
-            calculateCost();
+            recalculateYardage();
         }
 
-        // Initial setup on load
-        window.onload = function() {
-            resetLayout();
-            // Add a couple of starting pieces to demonstrate the tool
-            document.getElementById('piece-name').value = 'Back Panel';
-            document.getElementById('piece-length').value = '50';
-            document.getElementById('piece-width').value = '28';
-            addPiece();
-
-            document.getElementById('piece-name').value = 'Seat Cushion';
-            document.getElementById('piece-length').value = '45';
-            document.getElementById('piece-width').value = '30';
-            addPiece();
-            
+        function init() {
+            // Set up initial UI state
+            updateFabricWidth();
             calculateCost();
-        };
+            updatePieceList(); // Initialize the piece list (will show 0)
 
+            // Add an initial piece so the user has something to start with
+            addPiece();
+
+            recalculateYardage(); // Ensure canvas height is correct on load
+        }
+
+        // Run initialization on page load
+        window.onload = init;
     </script>
 </body>
 </html>
